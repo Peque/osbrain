@@ -66,6 +66,7 @@ setup(
             'pytest',
             'pytest-cov',
             'pytest-rerunfailures',
+            'pytest-timeout',
             'pytest-xdist',
         ],
     },
