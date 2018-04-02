@@ -51,7 +51,7 @@ def logger_received(logger, message, log_name='log_history_info',
     while True:
         time.sleep(0.01)
         log_history = logger.get_attr(log_name)
-        if position is not None:
+        if position is not None and len(log_history):
             log_history = [log_history[position]]
         matches = regex_count_in_list(message, log_history)
         if matches:
@@ -60,7 +60,7 @@ def logger_received(logger, message, log_name='log_history_info',
             return 0
 
 
-def sync_agent_logger(agent, logger):
+def sync_agent_logger(agent, logger, timeout=3.):
     """
     Make sure and agent and a logger are synchronized.
 
@@ -74,14 +74,16 @@ def sync_agent_logger(agent, logger):
     logger : Proxy
         Proxy to the logger.
     """
-    message = str(uuid4())
     delay = 0.01
-    while not len(logger.get_attr('log_history_info')) or \
-            message not in logger.get_attr('log_history_info')[-1]:
+    t0 = time.time()
+    while True:
         message = str(uuid4())
         agent.log_info(message)
-        time.sleep(delay)
-        delay *= 2
+        if logger_received(logger, message, position=-1, timeout=delay):
+            break
+        delay *= 1.1
+        if timeout and time.time() - t0 > timeout:
+            raise TimeoutError('Agent and logger are not synced!')
 
 
 def agent_dies(agent, nsproxy, timeout=1.):
