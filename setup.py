@@ -56,6 +56,7 @@ setup(
         ],
         'lint': [
             'flake8',
+            'flake8-colors',
             'flake8-bugbear',
             'pep8-naming',
         ],
