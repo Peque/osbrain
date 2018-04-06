@@ -1710,8 +1710,8 @@ class Agent():
         """
         Force shutdown of the agent.
         """
-        self._pyroDaemon.shutdown()
         self._clean_up()
+        self._pyroDaemon.shutdown()
 
     def _get_unique_external_zmq_sockets(self):
         """
