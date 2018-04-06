@@ -1696,13 +1696,22 @@ class Agent():
         """
         return self._running
 
+    def _clean_up(self):
+        """
+        Clean-up process before dying:
+
+        - Close all external sockets.
+        - Stop all timers.
+        """
+        self.stop_all_timers()
+        self.close_all()
+
     def kill(self):
         """
         Force shutdown of the agent.
         """
         self._pyroDaemon.shutdown()
-        self.stop_all_timers()
-        self.close_all()
+        self._clean_up()
 
     def _get_unique_external_zmq_sockets(self):
         """
