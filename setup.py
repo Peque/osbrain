@@ -65,6 +65,7 @@ setup(
         'test': [
             'pytest',
             'pytest-cov',
+            'pytest-repeat',
             'pytest-rerunfailures',
             'pytest-xdist',
         ],
