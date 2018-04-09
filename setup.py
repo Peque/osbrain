@@ -37,6 +37,7 @@ setup(
     keywords='osbrain multi-agent system',
     packages=['osbrain'],
     install_requires=[
+        'pathlib',
         'Pyro4>=4.48',
         'pyzmq>=15.2.0',
         'dill>=0.2.0,!=0.2.7',
