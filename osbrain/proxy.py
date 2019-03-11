@@ -40,7 +40,8 @@ def locate_ns(nsaddr, timeout=3.0):
     time0 = time.time()
     while True:
         try:
-            Pyro4.locateNS(host, port)
+            ns = Pyro4.locateNS(host, port)
+            ns._pyroRelease()
             return nsaddr
         except NamingError:
             if time.time() - time0 < timeout:
