@@ -377,22 +377,39 @@ class NSProxy(Pyro4.core.Proxy):
         agent.release()
         return addr
 
-    def shutdown_agents(self, timeout=10.):
+    def shutdown_agents(self):
         """
         Shutdown all agents registered in the name server.
 
-        Parameters
-        ----------
-        timeout : float, default is 10.
-            Timeout, in seconds, to wait for the agents to shutdown.
+        This method will wait infinitely for the agents to shutdown.
         """
-        # Wait for all agents to be shutdown (unregistered)
         time0 = time.time()
         super()._pyroInvoke('async_shutdown_agents', (self.addr(), ), {})
-        while time.time() - time0 <= timeout / 2.:
-            if not len(self.agents()):
-                return
+        while len(self.agents()):
             time.sleep(0.1)
+
+    def shutdown(self):
+        """
+        Shut down the name server. All agents will be shutted down as well.
+        """
+        self.shutdown_agents()
+        try:
+            super()._pyroInvoke('daemon_shutdown', (), {}, flags=0)
+        except ConnectionClosedError:
+            pass
+
+    def kill_agents(self, timeout=10.):
+        """
+        Kill all agents registered in the name server.
+
+        Use `.shutdown_agents()` for a clean and safe shutdown instead.
+
+        Parameters
+        ----------
+        timeout : float
+            Timeout, in seconds, to wait for the agents to be killed.
+        """
+        time0 = time.time()
         super()._pyroInvoke('async_kill_agents', (self.addr(), ), {})
         while time.time() - time0 <= timeout:
             if not len(self.agents()):
@@ -405,16 +422,16 @@ class NSProxy(Pyro4.core.Proxy):
             )
         )
 
-    def shutdown(self, timeout=10.):
+    def kill(self, timeout=10.):
         """
-        Shutdown the name server. All agents will be shutdown as well.
+        Kill the name server. All agents will be killed as well.
 
         Parameters
         ----------
         timeout : float, default is 10.
-            Timeout, in seconds, to wait for the agents to shutdown.
+            Timeout, in seconds, to wait for the agents to be killed.
         """
-        self.shutdown_agents(timeout)
+        self.kill_agents(timeout)
         try:
             super()._pyroInvoke('daemon_shutdown', (), {}, flags=0)
         except ConnectionClosedError:

@@ -53,7 +53,7 @@ def test_agent_close_ipc_socket_agent_blocked_nameserver_shutdown():
     blocker.set_method(block)
     addr = blocker.bind('PUSH', alias='out')
     blocker.after(0, 'block')
-    ns.shutdown(timeout=1.)
+    ns.shutdown()
 
     assert wait_condition(addr.address.exists, negate=True)
 
