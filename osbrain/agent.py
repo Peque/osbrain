@@ -333,11 +333,11 @@ class Agent:
         try:
             loopback.connect(socket)
             loopback.send_pyobj(data_to_send)
-            return loopback.recv_pyobj()
-        except zmq.error.ContextTerminated:
-            pass
-        finally:
+            received = loopback.recv_pyobj()
             loopback.close(linger=0)
+        except zmq.error.ContextTerminated:
+            return None
+        return received
 
     def _loopback(self, header, data=None):
         """
@@ -1872,7 +1872,10 @@ class Agent:
             self._poller.unregister(socket)
 
         linger = get_linger(linger)
-        socket.close(linger=linger)
+        try:
+            socket.close(linger=linger)
+        except zmq.error.ContextTerminated:
+            pass
         address = self._address[socket]
         if address.transport == 'ipc':
             self._cleanup_ipc_socket_files(address)
